@@ -325,7 +325,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 **Pravin Patange**
 - GitHub: [@pravinpatange](https://github.com/pravinpatange)
 - LinkedIn: [Pravin Patange](https://linkedin.com/in/pravinpatange)
-- Email: pravin.patange@example.com
+- Email: deshmukhpravin74@gmail.com
 
 ## 🙏 **Acknowledgments**
 
