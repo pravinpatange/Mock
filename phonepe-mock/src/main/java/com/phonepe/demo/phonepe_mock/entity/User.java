@@ -34,7 +34,6 @@ public class User {
     @Column(nullable = false)
     private Boolean active = true;
 
-    // THIS IS THE MISSING FIELD CAUSING THE ERROR!
     @Enumerated(EnumType.STRING)
     @Column(name = "kyc_status", nullable = false)
     private KycStatus kycStatus = KycStatus.PENDING;
