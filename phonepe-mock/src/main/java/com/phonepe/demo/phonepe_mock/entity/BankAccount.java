@@ -29,6 +29,10 @@ public class BankAccount {
     @Column(nullable = false)
     private Boolean active = true;
 
+    // 🔐 OPTIMISTIC LOCKING FOR CONCURRENT TRANSACTION SAFETY
+    @Version
+    private Long version;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -97,6 +101,15 @@ public class BankAccount {
 
     public void setActive(Boolean active) {
         this.active = active;
+    }
+
+    // 🔐 VERSION FIELD FOR OPTIMISTIC LOCKING
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
     }
 
     public User getUser() {

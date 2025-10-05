@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
@@ -96,6 +97,15 @@ public class GlobalExceptionHandler {
         log.warn("Authentication failed: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(ApiResponseDto.error("Authentication failed"));
+    }
+
+    // 🔄 HANDLE CONCURRENT TRANSACTION CONFLICTS
+    @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
+    public ResponseEntity<ApiResponseDto<String>> handleOptimisticLocking(
+            ObjectOptimisticLockingFailureException ex) {
+        log.warn("⚡ Concurrent transaction detected - will retry: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(ApiResponseDto.error("Transaction conflict detected. Please try again in a moment."));
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)

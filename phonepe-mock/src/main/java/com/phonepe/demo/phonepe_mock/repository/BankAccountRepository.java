@@ -2,9 +2,12 @@ package com.phonepe.demo.phonepe_mock.repository;
 
 import com.phonepe.demo.phonepe_mock.entity.BankAccount;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import jakarta.persistence.LockModeType;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,7 +21,7 @@ public interface BankAccountRepository extends JpaRepository<BankAccount, Long> 
     @Query("SELECT ba FROM BankAccount ba WHERE ba.id = :accountId AND ba.user.id = :userId AND ba.active = true")
     Optional<BankAccount> findByIdAndUserIdAndActiveTrue(@Param("accountId") Long accountId, @Param("userId") Long userId);
 
-    // *** MISSING METHOD - This is what's causing your error ***
+    // Check if account exists by account number
     boolean existsByAccountNumber(String accountNumber);
 
     // Find all accounts by user ID (including inactive)
@@ -50,4 +53,22 @@ public interface BankAccountRepository extends JpaRepository<BankAccount, Long> 
     // Find accounts by user and bank name
     @Query("SELECT ba FROM BankAccount ba WHERE ba.user.id = :userId AND ba.bankName = :bankName AND ba.active = true")
     List<BankAccount> findByUserIdAndBankNameAndActiveTrue(@Param("userId") Long userId, @Param("bankName") String bankName);
+
+    // 🔐 CONCURRENT TRANSACTION SAFETY METHODS
+
+    /**
+     * Find account with EXCLUSIVE DATABASE LOCK for concurrent transaction safety
+     * This prevents race conditions during money transfers
+     */
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT ba FROM BankAccount ba WHERE ba.id = :accountId AND ba.user.id = :userId AND ba.active = true")
+    Optional<BankAccount> findByIdAndUserIdWithLock(@Param("accountId") Long accountId, @Param("userId") Long userId);
+
+    /**
+     * Find user accounts with EXCLUSIVE DATABASE LOCK
+     * Used to get receiver's account with exclusive access
+     */
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT ba FROM BankAccount ba WHERE ba.user.id = :userId AND ba.active = true ORDER BY ba.id ASC")
+    List<BankAccount> findByUserIdWithLock(@Param("userId") Long userId);
 }
